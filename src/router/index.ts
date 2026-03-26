@@ -23,27 +23,38 @@ const addRouter = () => {
   router.addRoute({
     name: 'layout',
     path: '/',
+    redirect: '/dashboard',
     component: () => import('@/layout/index.vue'),
     children: [...menus.value]
   })
 }
 
-router.beforeEach((to, _form, next) => {
+router.beforeEach((to, _from) => {
   const token = localStorage.getItem('token')
 
   if (to.path !== '/login' && !token) {
-    next('/login')
-  } else {
-    // 设置isRoutesGenerated防止重复添加，只有第一次需要添加
-    // 每次页面刷新时动态添加的路由会丢失，isRoutesGenerated值被重置
-    if (permissions.value.length && !isRoutesGenerated.value) {
-      generateRoutes()
-      addRouter()
-      next({ path: to.path, query: to.query, replace: true })
-    } else {
-      next()
-    }
+    return '/login'
   }
+
+  if (token && permissions.value.length && !isRoutesGenerated.value) {
+    generateRoutes()
+    addRouter()
+    // 优化：可以直接使用扩展运算符解构 to 对象，并覆盖 replace 属性，比手动写 path 和 query 更好
+    return { path: to.path, query: to.query, replace: true }
+  }
+
+  return true
+  // else {
+  //   // 设置isRoutesGenerated防止重复添加，只有第一次需要添加
+  //   // 每次页面刷新时动态添加的路由会丢失，isRoutesGenerated值被重置
+  //   if (permissions.value.length && !isRoutesGenerated.value) {
+  //     generateRoutes()
+  //     addRouter()
+  //     return { path: to.path, query: to.query, replace: true }
+  //   } else {
+  //     return true
+  //   }
+  // }
 })
 
 export default router

@@ -22,6 +22,8 @@ import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from
 import VChart from 'vue-echarts'
 import { ref } from 'vue'
 
+
+
 use([CanvasRenderer, BarChart, PieChart, LineChart, TitleComponent, TooltipComponent, LegendComponent, GridComponent])
 
 const barOption = ref({
