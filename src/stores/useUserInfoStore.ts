@@ -1,41 +1,30 @@
 import { defineStore } from 'pinia'
-
-import { reactive, toRefs } from 'vue'
+import { ref } from 'vue'
 import userRouters from '@/router/userRouters'
 
-interface UserState {
-  isCollapse: boolean
-  permissions: string[]
-  userInfo: any
-  menus: any[] // 侧边栏菜单展示用
-  isRoutesGenerated: boolean // 标记是否已生成动态路由
-}
+export const useUserInfoStore = defineStore('userInfo', () => {
+  const isCollapse = ref(false)
+  const permissions = ref<string[]>(JSON.parse(localStorage.getItem('permissions') || '[]'))
+  const userInfo = ref<any>(null)
+  const menus = ref<any[]>([]) // 侧边栏菜单展示用
+  const isRoutesGenerated = ref(false) // 标记是否已生成动态路由
 
-const state = reactive<UserState>({
-  isCollapse: false,
-  permissions: JSON.parse(localStorage.getItem('permissions') || '[]'),
-  userInfo: null,
-  menus: [],
-  isRoutesGenerated: false
-})
-
-export function useUserInfo() {
   // 切换侧边栏折叠状态
   const toggleCollapse = () => {
-    state.isCollapse = !state.isCollapse
+    isCollapse.value = !isCollapse.value
   }
 
   const setPermissions = (perms: string[]) => {
-    state.permissions = perms
+    permissions.value = perms
   }
 
   const setUserInfo = (info: any) => {
-    state.userInfo = info
+    userInfo.value = info
     if (info.permissions) {
       if (!info.permissions.includes('dashboard')) {
         info.permissions.push('dashboard')
       }
-      state.permissions = info.permissions
+      permissions.value = info.permissions
       localStorage.setItem('permissions', JSON.stringify(info.permissions))
     }
   }
@@ -62,18 +51,17 @@ export function useUserInfo() {
   // 生成路由
   const generateRoutes = () => {
     // 过滤出有权限的路由
-    const accessibleRoutes = filterAsyncRoutes(userRouters, state.permissions)
-    state.menus = accessibleRoutes
-
-    state.isRoutesGenerated = true
+    const accessibleRoutes = filterAsyncRoutes(userRouters, permissions.value)
+    menus.value = accessibleRoutes
+    isRoutesGenerated.value = true
     return accessibleRoutes
   }
 
   const resetState = () => {
-    state.isRoutesGenerated = false
-    state.menus = []
-    state.permissions = []
-    state.userInfo = null
+    isRoutesGenerated.value = false
+    menus.value = []
+    permissions.value = []
+    userInfo.value = null
   }
 
   const clearUserInfo = () => {
@@ -84,7 +72,11 @@ export function useUserInfo() {
   }
 
   return {
-    ...toRefs(state),
+    isCollapse,
+    permissions,
+    userInfo,
+    menus,
+    isRoutesGenerated,
     toggleCollapse,
     setPermissions,
     setUserInfo,
@@ -92,6 +84,4 @@ export function useUserInfo() {
     resetState,
     clearUserInfo
   }
-}
-
-export const useUser = defineStore('userInfo', useUserInfo)
+})

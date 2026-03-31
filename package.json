@@ -14,6 +14,7 @@
     "axios": "1.10.0",
     "echarts": "^6.0.0",
     "element-plus": "2.10.2",
+    "pinia": "^3.0.4",
     "v3-tabs": "^0.0.53",
     "vue": "3.5.17",
     "vue-echarts": "^8.0.1",
