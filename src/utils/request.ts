@@ -51,6 +51,11 @@ function request<T = any>(option: AxiosRequestConfig): Promise<T> {
     instance.interceptors.response.use(
       response => {
         removePending(response.config)
+        if (response.data.code !== 200) {
+          ElMessage({ message: response.data.message, type: 'error' })
+          return Promise.reject(response.data)
+        }
+
         return response
       },
       err => {

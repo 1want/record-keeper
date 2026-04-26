@@ -70,9 +70,9 @@ const handleLogin = async () => {
       try {
         const payload = { ...loginForm }
         const res = await loginApi(payload)
-        localStorage.setItem('token', res.access_token)
+        localStorage.setItem('token', res.data.access_token)
 
-        setUserInfo(res)
+        setUserInfo(res.data)
 
         ElMessage.success('登录成功')
         router.push('/dashboard')

@@ -50,7 +50,7 @@ const roleOptions = ref<any[]>([])
 onMounted(async () => {
   try {
     const res: any = await getRoleList()
-    roleOptions.value = res
+    roleOptions.value = res.data
   } catch (error) {
     console.error(error)
   }
@@ -72,19 +72,14 @@ const handleCancel = () => {
 }
 
 const handleConfirm = async () => {
-  if (!formRef.value) return
-  await formRef.value.validate(async valid => {
-    if (valid) {
-      if (props.type === 'add') {
-        const { message } = await addUser(localForm.value)
-        ElMessage(message)
-      } else {
-        const { message } = await updateUser(localForm.value)
-        ElMessage(message)
-      }
-      emit('update:dialog', false)
-      emit('refresh')
-    }
-  })
+  const isValid = await formRef.value?.validate().catch(() => false)
+  if (!isValid) return
+    
+  const request = props.type === 'add' ? addUser(localForm.value) : updateUser(localForm.value)
+  const res = await request
+
+  ElMessage.success(res.message)
+  emit('update:dialog', false)
+  emit('refresh')
 }
 </script>
